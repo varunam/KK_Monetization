@@ -2,32 +2,23 @@ package com.monetization.varunam.kk_monetization;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import com.google.android.gms.ads.MobileAds;
 
-    private Button iwt_button;
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        iwt_button = findViewById(R.id.iwtButtonID);
-        iwt_button.setOnClickListener(this);
-    }
+        MobileAds.initialize(this, "ca-app-pub-3940256099942544~3347511713j");
 
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
+        MainFragment mainFragment = new MainFragment();
+        getFragmentManager()
+                .beginTransaction()
+                .add(R.id.frame_layout_id, mainFragment)
+                .commit();
 
-        switch (id) {
-            case R.id.iwtButtonID:
-                Toast.makeText(getApplicationContext(), "Button", Toast.LENGTH_LONG).show();
-                break;
-            default: break;
-        }
     }
 }
