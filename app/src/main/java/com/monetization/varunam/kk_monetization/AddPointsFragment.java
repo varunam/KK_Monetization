@@ -1,5 +1,6 @@
 package com.monetization.varunam.kk_monetization;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -15,9 +16,9 @@ import android.widget.Toast;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
+import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.reward.RewardedVideoAd;
@@ -72,8 +73,10 @@ public class AddPointsFragment extends Fragment implements
         billingClient.startConnection(new BillingClientStateListener() {
             @Override
             public void onBillingSetupFinished(int responseCode) {
-                if (responseCode == BillingClient.BillingResponse.OK)
+                if (responseCode == BillingClient.BillingResponse.OK) {
                     Toast.makeText(context, "Billing OK", Toast.LENGTH_LONG).show();
+                    consumePurchases();
+                }
             }
 
             @Override
@@ -106,6 +109,22 @@ public class AddPointsFragment extends Fragment implements
 
     }
 
+    private void consumePurchases() {
+        Purchase.PurchasesResult purchasesResult = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
+
+        List<Purchase> ownedItems = purchasesResult.getPurchasesList();
+        if (ownedItems != null && ownedItems.size() > 0) {
+            Purchase purchase = ownedItems.get(0);
+            Toast.makeText(context, purchase.getSku() + " " + purchase.getPurchaseToken(), Toast.LENGTH_LONG).show();
+            billingClient.consumeAsync(purchase.getPurchaseToken(), new ConsumeResponseListener() {
+                @Override
+                public void onConsumeResponse(int responseCode, String purchaseToken) {
+                    Toast.makeText(context, "Product Consumed", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
+
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -122,10 +141,10 @@ public class AddPointsFragment extends Fragment implements
                 break;
             case R.id.buy_points_id:
                 int responseCode = billingClient.launchBillingFlow(getActivity(), billingFlowParams);
-                if(responseCode==0)
-                    Toast.makeText(context,"Purchase Success",Toast.LENGTH_LONG).show();
-                else if(responseCode==7)
-                    Toast.makeText(context,"Failed\nAlready own this item",Toast.LENGTH_LONG).show();
+                if (responseCode == 0)
+                    Toast.makeText(context, "Purchase Success", Toast.LENGTH_LONG).show();
+                else if (responseCode == 7)
+                    Toast.makeText(context, "Failed\nAlready own this item", Toast.LENGTH_LONG).show();
                 break;
         }
     }
@@ -154,15 +173,27 @@ public class AddPointsFragment extends Fragment implements
         if (responseCode == BillingClient.BillingResponse.OK && purchases != null) {
             for (Purchase purchase : purchases)
                 handlePurchase(purchase);
+            consumePurchases();
         }
     }
 
     private void handlePurchase(Purchase purchase) {
-        if(purchase.getSku()==DUMMY_BILLING_PRODUCT)
-        {
+        if (purchase.getSku().equals(DUMMY_BILLING_PRODUCT)) {
             pointsPrefs.addPoints(10);
             String availablePoints = "Available Points: " + pointsPrefs.getAvailablePoints();
             available_points.setText(availablePoints);
+            new AlertDialog.Builder(context)
+                    .setTitle("Purchase Successful")
+                    .setMessage("Sku: " + purchase.getSku() + "\n" +
+                            "Purchase Token: " + purchase.getPurchaseToken() + "\n" +
+                            "Purchase Name: " + purchase.getPackageName() + "\n" +
+                            "Purchase Time: " + purchase.getPurchaseTime() + "\n" +
+                            "Order ID: " + purchase.getOrderId() + "\n" +
+                            "Signature: " + purchase.getSignature() + "\n" +
+                            "Original Json: " + purchase.getOriginalJson())
+                    .setCancelable(false)
+                    .setPositiveButton("ok", null)
+                    .create().show();
         }
     }
 }

@@ -4,10 +4,14 @@ import android.content.Context;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.reward.RewardItem;
 import com.google.android.gms.ads.reward.RewardedVideoAd;
 import com.google.android.gms.ads.reward.RewardedVideoAdListener;
+
+import static com.google.android.gms.ads.AdRequest.ERROR_CODE_INTERNAL_ERROR;
+import static com.google.android.gms.ads.AdRequest.ERROR_CODE_INVALID_REQUEST;
+import static com.google.android.gms.ads.AdRequest.ERROR_CODE_NETWORK_ERROR;
+import static com.google.android.gms.ads.AdRequest.ERROR_CODE_NO_FILL;
 
 public class RewardVideoAdListener implements RewardedVideoAdListener {
 
@@ -63,7 +67,16 @@ public class RewardVideoAdListener implements RewardedVideoAdListener {
 
     @Override
     public void onRewardedVideoAdFailedToLoad(int i) {
-
+        if (i == ERROR_CODE_INTERNAL_ERROR)
+            Toast.makeText(context, "RVA - Internal Error", Toast.LENGTH_LONG).show();
+        else if (i == ERROR_CODE_INVALID_REQUEST)
+            Toast.makeText(context, "RVA - Invalid Request", Toast.LENGTH_LONG).show();
+        else if (i == ERROR_CODE_NETWORK_ERROR)
+            Toast.makeText(context, "RVA - Network Error", Toast.LENGTH_LONG).show();
+        else if (i == ERROR_CODE_NO_FILL)
+            Toast.makeText(context, "RVA - No ads in inventory", Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(context, "RVA - Error", Toast.LENGTH_LONG).show();
     }
 
     @Override

@@ -13,6 +13,7 @@ public class AdUtils {
     private RewardedVideoAd rewardedVideoAd;
 
     private static final String INTERSTIAL_AD_ID = "ca-app-pub-8631195249626572/5601776359";
+    private static final String REWARDED_AD_ID = "ca-app-pub-8631195249626572/5624152618";
 
     private AdUtils(Context context) {
         rewardedVideoAd = MobileAds.getRewardedVideoAdInstance(context);
@@ -59,7 +60,8 @@ public class AdUtils {
 
     public void loadRewardedVideoAd(RewardedVideoAd rewardedVideoAd) {
         //TODO test id to be changed with production id
-        rewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917", new AdRequest.Builder().build());
+        //rewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917", new AdRequest.Builder().addTestDevice("914AF69C3120FBD73C395326F89C5A26").build());
+        rewardedVideoAd.loadAd(REWARDED_AD_ID, new AdRequest.Builder().build());
     }
 
 }
